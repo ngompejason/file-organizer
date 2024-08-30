@@ -2,6 +2,7 @@ import os
 import shutil
 from pathlib import Path
 import time
+import logging
 
 
 class FileOrganizer:
@@ -15,6 +16,10 @@ class FileOrganizer:
 
     def __init__(self, directory: Path):
         self.directory = directory
+        self.setup_logger()
+
+    def setup_logger(self):
+        pass
 
     def is_audio (self, file)  -> bool:
         #get the extension of the file and check if it's an audio
@@ -41,26 +46,39 @@ class FileOrganizer:
             folder_path.mkdir(parents=True, exist_ok=True)
         return folder_path
     
+    def movefile(self, destination_path: Path, file: Path):
+        destination_file = destination_path / file
+        source_file_path = self.directory / file
+        if destination_file.exists():
+            filename, extension = os.path.splitext(file)
+            count = 1
+
+            while destination_file.exists():
+                destination_file = destination_path / f"{filename}({count}){extension}"
+                count += 1
+            shutil.move(source_file_path, destination_file)
+        else:
+            shutil.move(source_file_path, destination_path)
+    
     def organize_files(self):
 
         for file in os.listdir(self.directory):
-            file_path = self.directory / file
+            source_file_path = self.directory / file
             if self.is_audio(file):
-                folder_path = self.mkkdir("Audio Downloaded")
+                destination_path = self.mkkdir("Audio Downloaded")
+                self.movefile(destination_path=destination_path,file=file)
             elif self.is_video(file):
-                folder_path = self.mkkdir("Video Downloaded")
-                shutil.move(file_path, folder_path)
+                destination_path = self.mkkdir("Video Downloaded")
+                self.movefile(destination_path=destination_path,file=file)
             elif self.is_image(file):
-                folder_path = self.mkkdir("Image Downloaded")
-                if os.path.exists(folder_path / file):
-                    return
-                shutil.move(file_path, folder_path)
+                destination_path = self.mkkdir("Image Downloaded")
+                self.movefile(destination_path=destination_path,file=file)
             elif self.is_document(file):
-                folder_path = self.mkkdir("Documents Downloaded")
-                shutil.move(file_path, folder_path)
+                destination_path = self.mkkdir("Documents Downloaded")
+                self.movefile(destination_path=destination_path,file=file)
             elif self.is_archive(file):
-                folder_path = self.mkkdir("Archives Downloaded")
-                shutil.move(file_path, folder_path)
+                destination_path = self.mkkdir("Archives Downloaded")
+                self.movefile(destination_path=destination_path,file=file)
             else:
                 pass
 
