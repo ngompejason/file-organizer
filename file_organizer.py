@@ -63,22 +63,24 @@ class FileOrganizer:
     def movefile(self, destination_path: Path, file: str):
         destination_file = destination_path / file
         source_file_path = self.directory / file
-        if destination_file.exists():
-            filename, extension = os.path.splitext(file)
-            count = 1
+        try:
+            if destination_file.exists():
+                filename, extension = os.path.splitext(file)
+                count = 1
 
-            while destination_file.exists():
-                new_filename = f"{filename}({count}){extension}"
-                destination_file = destination_path / new_filename
-                count += 1
-            self.logger.info(f"Renamed {file} to {new_filename}")
+                while destination_file.exists():
+                    new_filename = f"{filename}({count}){extension}"
+                    destination_file = destination_path / new_filename
+                    count += 1
+                self.logger.info(f"Renamed {file} to {new_filename}")
 
-            shutil.move(source_file_path, destination_file)
-            self.logger.info(f"Moved {new_filename}  to {destination_path}")
-        else:
-            shutil.move(source_file_path, destination_path)
-            self.logger.info(f"Moved {file}  to {destination_path}")
-    
+                shutil.move(source_file_path, destination_file)
+                self.logger.info(f"Moved {new_filename}  to {destination_path}")
+            else:
+                shutil.move(source_file_path, destination_path)
+                self.logger.info(f"Moved {file}  to {destination_path}")
+        except Exception as e:
+            self.logger.error(f"Error moving '{file}': {str(e)}")
     def organize_files(self):
 
         for file in os.listdir(self.directory):
