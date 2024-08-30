@@ -16,10 +16,23 @@ class FileOrganizer:
 
     def __init__(self, directory: Path):
         self.directory = directory
-        self.setup_logger()
+        self.logger = self.file_logger()
 
-    def setup_logger(self):
-        pass
+    def file_logger(self):
+        #create the logger and the log level
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.INFO)
+        
+        # Create the handler
+        myhandler = logging.FileHandler("file_organizer.log")
+        # Create formatter and add it to the handler
+        format = logging.Formatter("%(asctime)s - %(levelname)s - %(name)s: %(message)s")
+        myhandler.setFormatter(format)
+        
+        #add the handler to the logger
+        logger.addHandler(myhandler)
+        #return the logger so it is assign to the self.logger attribute
+        return logger
 
     def is_audio (self, file)  -> bool:
         #get the extension of the file and check if it's an audio
@@ -44,9 +57,10 @@ class FileOrganizer:
         folder_path = self.directory / name
         if not folder_path.exists():
             folder_path.mkdir(parents=True, exist_ok=True)
+            self.logger.info(f"{folder_path} created")
         return folder_path
     
-    def movefile(self, destination_path: Path, file: Path):
+    def movefile(self, destination_path: Path, file: str):
         destination_file = destination_path / file
         source_file_path = self.directory / file
         if destination_file.exists():
@@ -54,16 +68,21 @@ class FileOrganizer:
             count = 1
 
             while destination_file.exists():
-                destination_file = destination_path / f"{filename}({count}){extension}"
+                new_filename = f"{filename}({count}){extension}"
+                destination_file = destination_path / new_filename
                 count += 1
+            self.logger.info(f"Renamed {file} to {new_filename}")
+
             shutil.move(source_file_path, destination_file)
+            self.logger.info(f"Moved {new_filename}  to {destination_path}")
         else:
             shutil.move(source_file_path, destination_path)
+            self.logger.info(f"Moved {file}  to {destination_path}")
     
     def organize_files(self):
 
         for file in os.listdir(self.directory):
-            source_file_path = self.directory / file
+            # source_file_path = self.directory / file
             if self.is_audio(file):
                 destination_path = self.mkkdir("Audio Downloaded")
                 self.movefile(destination_path=destination_path,file=file)
