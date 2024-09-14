@@ -24,7 +24,28 @@ A Python script that organizes files in a directory by sorting them into subfold
 
 ## Setup
 
-1. Clone the repository:
+Clone the repository and navigate to the project directory:
    ```bash
-   git clone https://github.com/yourusername/file-organizer.git
-   cd file-organizer
+   git clone https://github.com/ngompejason/file-organizer.git && cd file-organizer
+   ```
+## Usage
+
+1. Run the script:
+   ```bash
+    python file_organizer.py
+   ```
+2. By default, the script will organize files in your Downloads folder. To change this, modify the downloads_dir variable in the __main__ section of the script.
+3. File conflicts are handled by appending a counter to the filename to avoid overwriting.
+4. The script will run continuously, checking for new files every 5 seconds.
+
+## Logging
+The script logs all actions and errors to `file_organizer.log` in the same directory as the script.
+
+## Customization
+You can customize the following aspects:
+- Modify the file extensions in the FileOrganizer class to include additional formats.
+- Change the target directory by passing a different path to FileOrganizer.
+
+#### Contributions, issues, and feature requests are welcome.
+
+
